@@ -16,17 +16,14 @@ class MovieRecommender():
         self.test = None
         self.als_model = None
         self.prediction = None
+        self.recommender = None
 
         self.rank = rank
         self.spark = SparkSession.builder.getOrCreate()
 
-        self.ratings_df = pd.read_csv('data/training.csv')
-        self.get_split(self.ratings_df)
-
-        self.requests = self.get_requests()
         self.fitting = False
 
-    def fit(self, full=False):
+    def fit(self, data, full=False):
         self.als_model = ALS(
             itemCol='user',
             userCol='movie',
@@ -36,42 +33,33 @@ class MovieRecommender():
             rank=self.rank,
             maxIter=10
             )
-        if full == False:
-            self.als_model.fit(self.train)
-            self.fitting = True
-        elif full == True:
-            self.als_model.fit(self.ratings_spark)
-            self.fitting = True
+        self.recommender = self.als_model.fit(data)
 
-
-    def predict(self, dat = 'train'):
+    def predict(self, data, ratings_df):
         """Dat string representing which dataframe should get predictions: train, test, requests
         """
-        if self.fitting:
-            if dat == 'train':
-                preds = self.transform(self.train_spark_df).collect()
-                self.prediction = pd.DataFrame(preds, columns=['user', 'movie', 'rating'])
-            if dat == 'test':
-                preds = self.transform(self.test_spark_df).collect()
-                self.prediction = pd.DataFrame(preds, columns=['user', 'movie', 'rating'])
-            if dat == 'requests':
-                preds = self.transform(self.requests).collect()
-                self.prediction = pd.DataFrame(preds, columns=['user', 'movie', 'rating'])
-        else:
-            print "Not yet Fit"
-            pass
+        preds = self.recommender.transform(data).collect()
+        self.prediction = pd.DataFrame(preds, columns=['user', 'movie', 'prediction'])
+        avg_ratings = ratings_df.groupby('movie').mean()
+        avg_ratings = avg_ratings.drop('user', axis=1)
+        preds_df_nonan = self.prediction.join(avg_ratings, on='movie', how='left', rsuffix='movie')
+        preds_df_nonan['prediction'] = preds_df_nonan['prediction'].fillna(preds_df_nonan.ratingmovie)
+        self.prediction = preds_df_nonan.drop('ratingmovie', axis=1)
+        return self.prediction
 
-    def get_split(self, data):
+    def get_split(self):
         '''
         In init, creat split and rdd
         '''
-        self.train = data.sort_values('timestamp', ascending=True)[:-100000]
-        self.test = data.sort_values('timestamp', ascending=True)[-100000:]
+        self.ratings_df = pd.read_csv('data/training.csv')
+
+        self.train = self.ratings_df.sort_values('timestamp', ascending=True)[:-100000]
+        self.test = self.ratings_df.sort_values('timestamp', ascending=True)[-100000:]
 
         self.train_spark_df = self.spark.createDataFrame(self.train).drop('timestamp')
         self.test_spark_df = self.spark.createDataFrame(self.test).drop('timestamp')
 
-        self.ratings_spark = self.spark.createDataFrame(data).drop('timestamp')
+        self.ratings_spark = self.spark.createDataFrame(self.ratings_df).drop('timestamp')
 
 
     def get_requests(self):
