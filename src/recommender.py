@@ -9,7 +9,6 @@ class MovieRecommender():
         # if you want to use this...
         self.logger = logging.getLogger()
 
-
     def fit(self, ratings):
         """Fits the recommender on the given ratings
         Returns a model (an object that has a predict function)

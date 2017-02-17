@@ -1,13 +1,13 @@
 ----------------------------------------------------------------
-Fri Feb 17 10:07:00 PST 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-015a-4d41-7601-000010e13ef0 
-on database directory /Users/BirdPerson/Google Drive/Galvanize/course/assignments/6_week/team-something-violent/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@1f0c2d5d 
+Fri Feb 17 10:22:52 PST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-015a-4d4f-ff65-000013a70b20 
+on database directory /Users/ericyatskowitz/galvanize_work/Assignments/team-something-violent/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@36a76b03 
 Loaded from file:/usr/local/Cellar/apache-spark/2.1.0/libexec/jars/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_112-b16
-user.dir=/Users/BirdPerson/Google Drive/Galvanize/course/assignments/6_week/team-something-violent
+user.dir=/Users/ericyatskowitz/galvanize_work/Assignments/team-something-violent
 os.name=Mac OS X
 os.arch=x86_64
-os.version=10.11.6
+os.version=10.12.3
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
